@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { Logo } from './Logo';
 
@@ -30,14 +31,14 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Legal</h4>
             <div className="space-y-2">
               <div>
-                <a href="/privacy" className="hover:text-secondary transition-colors">
+                <Link to="/privacy" className="hover:text-secondary transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </div>
               <div>
-                <a href="/terms" className="hover:text-secondary transition-colors">
+                <Link to="/terms" className="hover:text-secondary transition-colors">
                   Terms of Use
-                </a>
+                </Link>
               </div>
             </div>
           </div>
