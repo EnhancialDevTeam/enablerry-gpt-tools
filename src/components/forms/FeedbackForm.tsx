@@ -8,7 +8,7 @@ import { useRating } from '../../hooks/useRating';
 import { useRecaptcha } from '../../hooks/useRecaptcha';
 import { useFeedbackValidation } from '../../hooks/useFeedbackValidation';
 import { useFormSubmission } from '../../hooks/useFormSubmission';
-import { FORM_CONFIG } from '../../constants/config';
+import { FORM_CONFIG } from '../../config/form.config';
 import type { FormData } from '../../types';
 
 export function FeedbackForm() {
@@ -71,7 +71,7 @@ export function FeedbackForm() {
 
         <FormInput
           id="email"
-          name="email"
+          name="from_email"
           label="Email Address"
           type="email"
           required

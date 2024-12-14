@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { emailService } from '../services/email';
+import { emailService } from '../services/email/emailService';
 import { trackEvent } from '../utils/analytics';
 import type { FormStatus, EmailTemplateData } from '../types';
 
@@ -26,9 +26,7 @@ export function useFormSubmission({
     try {
       console.log('Submitting form data:', formData);
 
-      const { success, error } = formData.form_type === 'feedback'
-        ? await emailService.sendFeedback(formData)
-        : await emailService.sendGPTIdea(formData);
+      const { success, error } = await emailService.sendEmail(formData);
 
       if (success) {
         setStatus('success');
