@@ -27,6 +27,12 @@ class EmailService {
 
   public async sendEmail(params: SendEmailParams): Promise<EmailResponse> {
     try {
+      // Log incoming parameters for debugging
+      console.log('Email service received params:', {
+        ...params,
+        recaptchaToken: '[REDACTED]'
+      });
+
       const validationResult = this.recaptchaValidator.validate(params.recaptchaToken);
       
       if (!validationResult.isValid) {
@@ -37,6 +43,13 @@ class EmailService {
       const emailParams = params.formType === 'feedback'
         ? mapFeedbackData(params)
         : mapGPTIdeaData(params);
+
+      // Log final email parameters
+      console.log('Using template ID:', templateId);
+      console.log('Final email parameters:', {
+        ...emailParams,
+        'g-recaptcha-response': '[REDACTED]'
+      });
 
       return await emailClient.send(
         EMAIL_CONFIG.SERVICE_ID,

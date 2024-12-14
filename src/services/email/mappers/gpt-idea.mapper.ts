@@ -5,7 +5,7 @@ export function mapGPTIdeaData(params: SendEmailParams): GPTIdeaEmailParams {
   const validator = RecaptchaValidator.getInstance();
   
   // Ensure all template variables are properly mapped
-  return {
+  const mappedData: GPTIdeaEmailParams = {
     to_name: 'Enablerry Team',                // {{to_name}}
     from_name: params.fromName || 'Anonymous',// {{from_name}}
     from_email: params.fromEmail,            // {{from_email}}
@@ -14,4 +14,12 @@ export function mapGPTIdeaData(params: SendEmailParams): GPTIdeaEmailParams {
     use_case: params.useCase || '',          // {{use_case}}
     'g-recaptcha-response': params.recaptchaToken || validator.getMockToken(),
   };
+
+  // Log mapped data for debugging (excluding sensitive info)
+  console.log('GPT Idea mapped data:', {
+    ...mappedData,
+    'g-recaptcha-response': '[REDACTED]'
+  });
+
+  return mappedData;
 }

@@ -4,20 +4,21 @@ import { FormInput } from './FormInput';
 import { SubmitButton } from './SubmitButton';
 import { ReCaptcha } from './ReCaptcha';
 import { useFormSubmission } from '../../hooks/useFormSubmission';
+import { useFormValidation } from '../../hooks/useFormValidation';
 
 export function GPTIdeaForm() {
   const [formData, setFormData] = useState({
+    name: '',
+    email: '',
     title: '',
     description: '',
     useCase: '',
-    email: '',
-    name: ''
   });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const { status, errorMessage, handleSubmit } = useFormSubmission({
     onSuccess: () => {
-      setFormData({ title: '', description: '', useCase: '', email: '', name: '' });
+      setFormData({ name: '', email: '', title: '', description: '', useCase: '' });
       setRecaptchaToken(null);
     },
     eventName: 'gpt_idea_submission',
@@ -33,6 +34,7 @@ export function GPTIdeaForm() {
       return;
     }
 
+    // Map form data to match email template variables exactly
     await handleSubmit({
       from_name: formData.name,
       from_email: formData.email,
