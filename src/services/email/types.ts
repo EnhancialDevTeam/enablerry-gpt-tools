@@ -1,19 +1,19 @@
 export interface BaseEmailParams {
-  to_name: string;
-  from_name: string;
-  from_email: string;
+  to_name: string;      // Required in template
+  from_name: string;    // Required in template
+  from_email: string;   // Required in template
   'g-recaptcha-response': string;
 }
 
 export interface FeedbackEmailParams extends BaseEmailParams {
-  message: string;
-  rating?: number;
+  message: string;      // Required in template
+  rating: string;       // Required in template
 }
 
 export interface GPTIdeaEmailParams extends BaseEmailParams {
-  tool_name: string;
-  description: string;
-  use_case: string;
+  tool_name: string;    // Required in template
+  description: string;  // Required in template
+  use_case: string;    // Required in template
 }
 
 export type EmailTemplateParams = FeedbackEmailParams | GPTIdeaEmailParams;

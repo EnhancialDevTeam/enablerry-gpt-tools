@@ -30,9 +30,15 @@ class EmailClient {
     params: EmailTemplateParams
   ): Promise<EmailResponse> {
     try {
+      // Log template data for debugging
+      console.log('Sending email with params:', {
+        ...params,
+        'g-recaptcha-response': '[REDACTED]'
+      });
+
       const response = await emailjs.send(serviceId, templateId, {
         ...params,
-        'g-recaptcha-response': params['g-recaptcha-response'], // Ensure correct parameter name
+        'g-recaptcha-response': params['g-recaptcha-response'],
       });
 
       return { success: response.status === 200 };
