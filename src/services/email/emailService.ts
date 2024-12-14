@@ -27,7 +27,7 @@ class EmailService {
 
       console.log('Sending email with template data:', templateData);
       
-      await emailClient.send(
+      const response = await emailClient.send(
         EMAIL_CONFIG.SERVICE_ID,
         templateId,
         {
@@ -36,7 +36,7 @@ class EmailService {
         }
       );
 
-      return { success: true };
+      return response;
     } catch (error) {
       console.error('Email sending failed:', error);
       return { 
