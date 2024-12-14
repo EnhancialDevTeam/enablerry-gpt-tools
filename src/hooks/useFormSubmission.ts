@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { emailService } from '../services/email';
 import { trackEvent } from '../utils/analytics';
-import type { FormStatus } from '../types';
+import type { FormStatus, EmailTemplateData } from '../types';
 
 interface UseFormSubmissionProps {
   onSuccess?: () => void;
@@ -19,11 +19,13 @@ export function useFormSubmission({
   const [status, setStatus] = useState<FormStatus['status']>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: Omit<EmailTemplateData, 'to_name'>) => {
     setStatus('loading');
     setErrorMessage('');
 
     try {
+      console.log('Submitting form data:', formData);
+
       const { success, error } = formData.form_type === 'feedback'
         ? await emailService.sendFeedback(formData)
         : await emailService.sendGPTIdea(formData);
@@ -40,7 +42,7 @@ export function useFormSubmission({
         setErrorMessage(error || 'Failed to send. Please try again.');
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('Form submission error:', error);
       setStatus('error');
       setErrorMessage('An unexpected error occurred. Please try again.');
     }

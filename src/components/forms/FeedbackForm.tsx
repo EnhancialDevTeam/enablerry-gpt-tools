@@ -61,7 +61,8 @@ export function FeedbackForm() {
       
       <div className="flex-grow">
         <FormInput
-          id="name"
+          id="from_name"
+          name="from_name"
           label="Full Name"
           required
           value={formData.name}
@@ -70,6 +71,7 @@ export function FeedbackForm() {
 
         <FormInput
           id="email"
+          name="email"
           label="Email Address"
           type="email"
           required
@@ -78,7 +80,8 @@ export function FeedbackForm() {
         />
 
         <FormInput
-          id="feedback"
+          id="message"
+          name="message"
           label="Your Feedback"
           type="textarea"
           required
