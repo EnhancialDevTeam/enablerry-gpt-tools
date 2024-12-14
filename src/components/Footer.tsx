@@ -9,7 +9,10 @@ export function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         {/* Logo Section */}
         <div className="mb-12">
-          <Logo className="h-10 footer" />
+          <Logo 
+            className="h-10 footer" 
+            linkClassName="focus:outline-none focus:ring-2 focus:ring-white rounded"
+          />
         </div>
 
         {/* Links Grid */}
