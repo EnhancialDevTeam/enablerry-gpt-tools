@@ -29,10 +29,14 @@ class EmailClient {
     }
   }
 
-  public async send(templateId: string, templateParams: Record<string, any>) {
+  public async send(serviceId: string, templateId: string, templateParams: Record<string, any>) {
+    if (!this.initialized) {
+      await this.init();
+    }
+
     try {
       const response = await emailjs.send(
-        EMAIL_CONFIG.SERVICE_ID,
+        serviceId,
         templateId,
         templateParams
       );

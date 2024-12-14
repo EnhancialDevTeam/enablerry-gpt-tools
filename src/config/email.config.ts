@@ -2,8 +2,8 @@
 export const EMAIL_CONFIG = {
   SERVICE_ID: 'service_yjrm30n',
   TEMPLATE_IDS: {
-    FEEDBACK: 'template_feedback',
-    GPT_IDEA: 'template_gpt_idea',
+    FEEDBACK: 'template_927yn1g',    // Updated template ID
+    GPT_IDEA: 'template_4eru8cs',    // Updated template ID
   },
   PUBLIC_KEY: 'MCMDp53ezb_n5AmJ2',
   TO_EMAIL: 'hello@enablerry.com',
