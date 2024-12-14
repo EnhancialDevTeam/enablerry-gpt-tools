@@ -1,6 +1,6 @@
 // Email service configuration
 export const EMAIL_CONFIG = {
-  SERVICE_ID: 'service_enablerry',
+  SERVICE_ID: 'service_yjrm30n',
   TEMPLATE_IDS: {
     FEEDBACK: 'template_feedback',
     GPT_IDEA: 'template_gpt_idea',
