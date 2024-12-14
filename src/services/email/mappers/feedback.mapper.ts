@@ -1,16 +1,18 @@
 import type { SendEmailParams, FeedbackEmailParams } from '../types';
+import { EMAIL_TEMPLATE_FIELDS } from '../../../config/email.config';
 import { RecaptchaValidator } from '../../../utils/validation/recaptcha';
 
 export function mapFeedbackData(params: SendEmailParams): FeedbackEmailParams {
   const validator = RecaptchaValidator.getInstance();
+  const fields = EMAIL_TEMPLATE_FIELDS;
   
-  // Ensure all template variables are properly mapped
+  // Map data to match template variables exactly
   return {
-    to_name: 'Enablerry Team',                 // {{to_name}}
-    from_name: params.fromName || 'Anonymous', // {{from_name}}
-    from_email: params.fromEmail,             // {{from_email}}
-    message: params.message || '',            // {{message}}
-    rating: params.rating?.toString() || '0', // {{rating}}
+    [fields.COMMON.TO_NAME]: 'Enablerry Team',
+    [fields.COMMON.FROM_NAME]: params.fromName || 'Anonymous',
+    [fields.COMMON.FROM_EMAIL]: params.fromEmail,
+    [fields.FEEDBACK.MESSAGE]: params.message || '',
+    [fields.FEEDBACK.RATING]: params.rating?.toString() || '0',
     'g-recaptcha-response': params.recaptchaToken || validator.getMockToken(),
   };
 }

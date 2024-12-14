@@ -1,17 +1,19 @@
 import type { SendEmailParams, GPTIdeaEmailParams } from '../types';
+import { EMAIL_TEMPLATE_FIELDS } from '../../../config/email.config';
 import { RecaptchaValidator } from '../../../utils/validation/recaptcha';
 
 export function mapGPTIdeaData(params: SendEmailParams): GPTIdeaEmailParams {
   const validator = RecaptchaValidator.getInstance();
+  const fields = EMAIL_TEMPLATE_FIELDS;
   
-  // Ensure all template variables are properly mapped
+  // Map data to match template variables exactly
   const mappedData: GPTIdeaEmailParams = {
-    to_name: 'Enablerry Team',                // {{to_name}}
-    from_name: params.fromName || 'Anonymous',// {{from_name}}
-    from_email: params.fromEmail,            // {{from_email}}
-    tool_name: params.toolName || '',        // {{tool_name}}
-    description: params.description || '',    // {{description}}
-    use_case: params.useCase || '',          // {{use_case}}
+    [fields.COMMON.TO_NAME]: 'Enablerry Team',
+    [fields.COMMON.FROM_NAME]: params.fromName || 'Anonymous',
+    [fields.COMMON.FROM_EMAIL]: params.fromEmail,
+    [fields.GPT_IDEA.TOOL_NAME]: params.toolName || '',
+    [fields.GPT_IDEA.DESCRIPTION]: params.description || '', // Maps to {{message}} in template
+    [fields.GPT_IDEA.USE_CASE]: params.useCase || '',
     'g-recaptcha-response': params.recaptchaToken || validator.getMockToken(),
   };
 

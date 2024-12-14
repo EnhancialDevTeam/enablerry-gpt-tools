@@ -1,19 +1,20 @@
+// Template field types must match EmailJS template variables exactly
 export interface BaseEmailParams {
-  to_name: string;      // Required in template
-  from_name: string;    // Required in template
-  from_email: string;   // Required in template
+  to_name: string;      // {{to_name}}
+  from_name: string;    // {{from_name}}
+  from_email: string;   // {{from_email}}
   'g-recaptcha-response': string;
 }
 
 export interface FeedbackEmailParams extends BaseEmailParams {
-  message: string;      // Required in template
-  rating: string;       // Required in template
+  message: string;      // {{message}}
+  rating: string;       // {{rating}}
 }
 
 export interface GPTIdeaEmailParams extends BaseEmailParams {
-  tool_name: string;    // Required in template
-  description: string;  // Required in template
-  use_case: string;    // Required in template
+  tool_name: string;    // {{tool_name}}
+  message: string;      // {{message}} - reused for description
+  use_case: string;     // {{use_case}}
 }
 
 export type EmailTemplateParams = FeedbackEmailParams | GPTIdeaEmailParams;
