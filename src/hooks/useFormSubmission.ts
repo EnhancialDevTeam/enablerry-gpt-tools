@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { emailService } from '../services/email/emailService';
+import { emailService } from '../services/email';
 import { trackEvent } from '../utils/analytics';
 import type { FormStatus } from '../types';
 

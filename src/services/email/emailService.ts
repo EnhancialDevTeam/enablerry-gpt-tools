@@ -1,8 +1,9 @@
 import { emailClient } from './emailClient';
-import { EMAIL_CONFIG, EMAIL_TEMPLATE_FIELDS } from '../../config/email.config';
+import { EMAIL_CONFIG } from '../../config/email.config';
 import type { EmailTemplateData, EmailResponse } from '../../types';
+import type { EmailServiceInterface } from './types';
 
-export class EmailService {
+class EmailService implements EmailServiceInterface {
   private static instance: EmailService;
 
   private constructor() {}
@@ -17,11 +18,12 @@ export class EmailService {
   public async sendFeedback(data: Omit<EmailTemplateData, 'to_name'>): Promise<EmailResponse> {
     try {
       const templateParams = {
-        [EMAIL_TEMPLATE_FIELDS.FEEDBACK.TO_NAME]: 'Enablerry Team',
-        [EMAIL_TEMPLATE_FIELDS.FEEDBACK.FROM_NAME]: data.from_name,
-        [EMAIL_TEMPLATE_FIELDS.FEEDBACK.FROM_EMAIL]: data.from_email,
-        [EMAIL_TEMPLATE_FIELDS.FEEDBACK.MESSAGE]: data.message,
-        [EMAIL_TEMPLATE_FIELDS.FEEDBACK.RATING]: data.rating,
+        to_name: 'Enablerry Team',
+        from_name: data.from_name,
+        from_email: data.from_email,
+        message: data.message,
+        rating: data.rating,
+        g_recaptcha_response: data.recaptcha_token
       };
 
       await emailClient.send(EMAIL_CONFIG.TEMPLATE_IDS.FEEDBACK, templateParams);
@@ -38,12 +40,13 @@ export class EmailService {
   public async sendGPTIdea(data: Omit<EmailTemplateData, 'to_name'>): Promise<EmailResponse> {
     try {
       const templateParams = {
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.TO_NAME]: 'Enablerry Team',
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.FROM_NAME]: data.from_name,
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.FROM_EMAIL]: data.from_email,
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.TOOL_NAME]: data.tool_name,
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.DESCRIPTION]: data.description,
-        [EMAIL_TEMPLATE_FIELDS.GPT_IDEA.USE_CASE]: data.use_case,
+        to_name: 'Enablerry Team',
+        from_name: data.from_name,
+        from_email: data.from_email,
+        tool_name: data.tool_name,
+        description: data.description,
+        use_case: data.use_case,
+        g_recaptcha_response: data.recaptcha_token
       };
 
       await emailClient.send(EMAIL_CONFIG.TEMPLATE_IDS.GPT_IDEA, templateParams);
@@ -58,4 +61,5 @@ export class EmailService {
   }
 }
 
+// Export a singleton instance
 export const emailService = EmailService.getInstance();

@@ -43,7 +43,9 @@ export function FeedbackForm() {
     if (!validateRecaptcha()) return;
 
     await handleSubmit({
-      ...formData,
+      from_name: formData.name,
+      from_email: formData.email,
+      message: formData.feedback,
       rating,
       form_type: 'feedback',
       recaptcha_token: recaptchaToken!
@@ -81,6 +83,7 @@ export function FeedbackForm() {
           type="textarea"
           required
           minLength={FORM_CONFIG.FEEDBACK.MIN_LENGTH}
+          maxLength={FORM_CONFIG.FEEDBACK.MAX_LENGTH}
           value={formData.feedback}
           onChange={(value) => setFormData(prev => ({ ...prev, feedback: value }))}
           error={feedbackError}
@@ -109,7 +112,7 @@ export function FeedbackForm() {
           <p className="mt-4 text-green-600">Thank you for your feedback!</p>
         )}
         {status === 'error' && (
-          <p className="mt-4 text-red-600">{errorMessage}</p>
+          <p className="mt-4 text-red-600">{errorMessage || 'Failed to send feedback. Please try again.'}</p>
         )}
 
         <p className="mt-4 text-sm text-neutral-500">
