@@ -5,7 +5,7 @@ interface ValidationResult {
   error: string | undefined;
 }
 
-export function useFeedbackValidation(minLength: number = 4) {
+export function useFeedbackValidation(minLength: number = 5) {
   const [error, setError] = useState<string>();
 
   const validateFeedback = useCallback((feedback: string): ValidationResult => {
@@ -15,8 +15,11 @@ export function useFeedbackValidation(minLength: number = 4) {
     }
 
     if (feedback.trim().length < minLength) {
-      setError(`Feedback must be at least ${minLength} characters long`);
-      return { isValid: false, error: `Feedback must be at least ${minLength} characters long` };
+      setError(`Please lengthen this text to ${minLength} characters or more (you are currently using ${feedback.trim().length} characters).`);
+      return { 
+        isValid: false, 
+        error: `Please lengthen this text to ${minLength} characters or more (you are currently using ${feedback.trim().length} characters).`
+      };
     }
 
     setError(undefined);

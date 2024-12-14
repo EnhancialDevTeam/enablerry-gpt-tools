@@ -13,13 +13,14 @@ import { trackEvent } from '../../utils/analytics';
 export function FeedbackForm() {
   const { rating, setRating, error: ratingError, validateRating } = useRating(true);
   const { recaptchaToken, setRecaptchaToken, validateRecaptcha } = useRecaptcha();
-  const { error: feedbackError, validateFeedback } = useFeedbackValidation(4);
+  const { error: feedbackError, validateFeedback } = useFeedbackValidation(5);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     feedback: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +32,10 @@ export function FeedbackForm() {
     if (!validateRecaptcha()) return;
 
     setStatus('loading');
+    setErrorMessage('');
 
     try {
-      const { success } = await sendEmail({
+      const { success, error } = await sendEmail({
         from_name: formData.name,
         from_email: formData.email,
         message: formData.feedback,
@@ -50,10 +52,12 @@ export function FeedbackForm() {
         trackEvent('form_submission', 'Engagement', 'Feedback Form');
       } else {
         setStatus('error');
+        setErrorMessage(error?.message || 'Failed to send feedback. Please try again.');
       }
     } catch (error) {
       console.error('Form submission error:', error);
       setStatus('error');
+      setErrorMessage('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -82,6 +86,7 @@ export function FeedbackForm() {
           id="email"
           label="Email Address"
           type="email"
+          required
           value={formData.email}
           onChange={(value) => setFormData(prev => ({ ...prev, email: value }))}
         />
@@ -91,11 +96,12 @@ export function FeedbackForm() {
           label="Your Feedback"
           type="textarea"
           required
-          minLength={4}
+          minLength={5}
           value={formData.feedback}
           onChange={handleFeedbackChange}
           error={feedbackError}
           onBlur={() => validateFeedback(formData.feedback)}
+          placeholder="Please provide your feedback (minimum 5 characters)"
         />
 
         <StarRating
@@ -119,7 +125,7 @@ export function FeedbackForm() {
           <p className="mt-4 text-green-600">Thank you for your feedback!</p>
         )}
         {status === 'error' && (
-          <p className="mt-4 text-red-600">Failed to send feedback. Please try again.</p>
+          <p className="mt-4 text-red-600">{errorMessage}</p>
         )}
 
         <p className="mt-4 text-sm text-neutral-500">

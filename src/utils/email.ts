@@ -24,17 +24,19 @@ export async function sendEmail(data: EmailData): Promise<{ success: boolean; er
       to_email: EMAIL_CONFIG.TO_EMAIL,
     };
 
+    await emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
+    
     const response = await emailjs.send(
       EMAIL_CONFIG.SERVICE_ID,
       templateId,
-      emailData,
-      EMAIL_CONFIG.PUBLIC_KEY
+      emailData
     );
 
     if (response.status === 200) {
       return { success: true };
     } else {
-      throw new Error('Failed to send email');
+      console.error('Email sending failed with status:', response.status);
+      return { success: false, error: 'Failed to send email' };
     }
   } catch (error) {
     console.error('Email sending failed:', error);
