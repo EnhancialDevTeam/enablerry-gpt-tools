@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { Lightbulb } from 'lucide-react';
-import { sendEmail } from '../../utils/email';
-import { ReCaptcha } from './ReCaptcha';
 import { FormInput } from './FormInput';
 import { SubmitButton } from './SubmitButton';
+import { ReCaptcha } from './ReCaptcha';
+import { useFormSubmission } from '../../hooks/useFormSubmission';
 
 export function GPTIdeaForm() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     useCase: '',
-    email: ''
+    email: '',
+    name: ''
   });
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { status, errorMessage, handleSubmit } = useFormSubmission({
+    onSuccess: () => {
+      setFormData({ title: '', description: '', useCase: '', email: '', name: '' });
+      setRecaptchaToken(null);
+    },
+    eventName: 'gpt_idea_submission',
+    eventCategory: 'Engagement',
+    eventLabel: 'GPT Idea Form'
+  });
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!recaptchaToken) {
@@ -23,41 +33,42 @@ export function GPTIdeaForm() {
       return;
     }
 
-    setStatus('loading');
-
-    const emailData = {
+    await handleSubmit({
+      from_name: formData.name,
       from_email: formData.email,
       tool_name: formData.title,
       description: formData.description,
       use_case: formData.useCase,
       form_type: 'gpt_idea',
       recaptcha_token: recaptchaToken
-    };
-
-    const { success } = await sendEmail(emailData, 'template_gpt_idea');
-    setStatus(success ? 'success' : 'error');
-
-    if (success) {
-      setFormData({ title: '', description: '', useCase: '', email: '' });
-      setRecaptchaToken(null);
-      
-      if (typeof gtag !== 'undefined') {
-        gtag('event', 'gpt_idea_submission', {
-          'event_category': 'Engagement',
-          'event_label': 'GPT Idea Form'
-        });
-      }
-    }
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8 border border-neutral-200 flex flex-col h-full">
+    <form onSubmit={onSubmit} className="bg-white rounded-lg shadow-lg p-8 border border-neutral-200 flex flex-col h-full">
       <div className="flex items-center gap-3 mb-6">
         <Lightbulb className="h-6 w-6 text-secondary" />
         <h3 className="text-2xl font-semibold text-neutral-900">Suggest a GPT Tool</h3>
       </div>
 
       <div className="flex-grow">
+        <FormInput
+          id="name"
+          label="Full Name"
+          required
+          value={formData.name}
+          onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
+        />
+
+        <FormInput
+          id="email"
+          label="Email Address"
+          type="email"
+          required
+          value={formData.email}
+          onChange={(value) => setFormData(prev => ({ ...prev, email: value }))}
+        />
+
         <FormInput
           id="title"
           label="Tool Name"
@@ -89,16 +100,6 @@ export function GPTIdeaForm() {
           rows={2}
         />
 
-        <FormInput
-          id="ideaEmail"
-          label="Email Address"
-          type="email"
-          required
-          placeholder="We'll notify you when it's ready"
-          value={formData.email}
-          onChange={(value) => setFormData(prev => ({ ...prev, email: value }))}
-        />
-
         <ReCaptcha onChange={setRecaptchaToken} />
       </div>
 
@@ -113,7 +114,7 @@ export function GPTIdeaForm() {
           <p className="mt-4 text-green-600">Thank you for your suggestion!</p>
         )}
         {status === 'error' && (
-          <p className="mt-4 text-red-600">Failed to send suggestion. Please try again.</p>
+          <p className="mt-4 text-red-600">{errorMessage || 'Failed to send suggestion. Please try again.'}</p>
         )}
 
         <p className="mt-4 text-sm text-neutral-500">

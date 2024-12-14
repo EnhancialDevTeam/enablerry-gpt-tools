@@ -22,8 +22,11 @@ export function useFormSubmission({
   const handleSubmit = async (formData: {
     from_name: string;
     from_email: string;
-    message: string;
+    message?: string;
     rating?: number;
+    tool_name?: string;
+    description?: string;
+    use_case?: string;
     form_type: 'feedback' | 'gpt_idea';
     recaptcha_token: string;
   }) => {
@@ -36,6 +39,9 @@ export function useFormSubmission({
         fromEmail: formData.from_email,
         message: formData.message,
         rating: formData.rating,
+        toolName: formData.tool_name,
+        description: formData.description,
+        useCase: formData.use_case,
         recaptchaToken: formData.recaptcha_token,
         formType: formData.form_type,
       });

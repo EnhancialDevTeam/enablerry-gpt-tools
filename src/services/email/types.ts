@@ -1,22 +1,36 @@
-export interface EmailTemplateParams {
+export interface BaseEmailParams {
   to_name: string;
   from_name: string;
   from_email: string;
+  'g-recaptcha-response': string;
+}
+
+export interface FeedbackEmailParams extends BaseEmailParams {
   message: string;
   rating?: number;
-  'g-recaptcha-response': string; // Correct parameter name for reCAPTCHA
 }
+
+export interface GPTIdeaEmailParams extends BaseEmailParams {
+  tool_name: string;
+  description: string;
+  use_case: string;
+}
+
+export type EmailTemplateParams = FeedbackEmailParams | GPTIdeaEmailParams;
 
 export interface EmailResponse {
   success: boolean;
   error?: string;
 }
 
-export interface EmailServiceConfig {
-  serviceId: string;
-  templateIds: {
-    feedback: string;
-    gptIdea: string;
-  };
-  publicKey: string;
+export interface SendEmailParams {
+  fromName: string;
+  fromEmail: string;
+  recaptchaToken: string;
+  formType: 'feedback' | 'gpt_idea';
+  message?: string;
+  rating?: number;
+  toolName?: string;
+  description?: string;
+  useCase?: string;
 }
