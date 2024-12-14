@@ -1,6 +1,6 @@
 import React from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
-import { RECAPTCHA_CONFIG } from '../../constants/config';
+import { RECAPTCHA_CONFIG } from '../../config/recaptcha.config';
 
 interface ReCaptchaProps {
   onChange: (token: string | null) => void;

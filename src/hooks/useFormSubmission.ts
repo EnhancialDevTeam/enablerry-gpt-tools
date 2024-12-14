@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { emailService } from '../services/email/emailService';
 import { trackEvent } from '../utils/analytics';
-import type { FormStatus, EmailTemplateData } from '../types';
+import type { FormStatus } from '../types';
 
 interface UseFormSubmissionProps {
   onSuccess?: () => void;
@@ -19,14 +19,26 @@ export function useFormSubmission({
   const [status, setStatus] = useState<FormStatus['status']>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleSubmit = async (formData: Omit<EmailTemplateData, 'to_name'>) => {
+  const handleSubmit = async (formData: {
+    from_name: string;
+    from_email: string;
+    message: string;
+    rating?: number;
+    form_type: 'feedback' | 'gpt_idea';
+    recaptcha_token: string;
+  }) => {
     setStatus('loading');
     setErrorMessage('');
 
     try {
-      console.log('Submitting form data:', formData);
-
-      const { success, error } = await emailService.sendEmail(formData);
+      const { success, error } = await emailService.sendEmail({
+        fromName: formData.from_name,
+        fromEmail: formData.from_email,
+        message: formData.message,
+        rating: formData.rating,
+        recaptchaToken: formData.recaptcha_token,
+        formType: formData.form_type,
+      });
 
       if (success) {
         setStatus('success');

@@ -1,4 +1,5 @@
 import emailjs from '@emailjs/browser';
+import type { EmailTemplateParams, EmailResponse } from './types';
 import { EMAIL_CONFIG } from '../../config/email.config';
 
 class EmailClient {
@@ -16,38 +17,31 @@ class EmailClient {
     return EmailClient.instance;
   }
 
-  private init() {
+  private init(): void {
     if (!this.initialized) {
-      try {
-        emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
-        this.initialized = true;
-        console.log('EmailJS initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize EmailJS:', error);
-        throw error;
-      }
+      emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
+      this.initialized = true;
     }
   }
 
-  public async send(serviceId: string, templateId: string, templateParams: Record<string, any>) {
-    if (!this.initialized) {
-      await this.init();
-    }
-
+  public async send(
+    serviceId: string,
+    templateId: string,
+    params: EmailTemplateParams
+  ): Promise<EmailResponse> {
     try {
-      const response = await emailjs.send(
-        serviceId,
-        templateId,
-        templateParams
-      );
+      const response = await emailjs.send(serviceId, templateId, {
+        ...params,
+        'g-recaptcha-response': params['g-recaptcha-response'], // Ensure correct parameter name
+      });
 
-      if (response.status === 200) {
-        return { success: true };
-      }
-      throw new Error(`Email sending failed with status: ${response.status}`);
+      return { success: response.status === 200 };
     } catch (error) {
-      console.error('Email sending failed:', error);
-      throw error;
+      console.error('EmailJS send error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send email'
+      };
     }
   }
 }

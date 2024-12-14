@@ -1,7 +1,15 @@
 import { emailClient } from './emailClient';
 import { EMAIL_CONFIG } from '../../config/email.config';
-import { mapFeedbackData, mapGPTIdeaData } from './mappers';
-import type { EmailTemplateData, EmailResponse } from '../../types';
+import type { EmailTemplateParams, EmailResponse } from './types';
+
+interface SendEmailParams {
+  fromName: string;
+  fromEmail: string;
+  message: string;
+  rating?: number;
+  recaptchaToken: string;
+  formType: 'feedback' | 'gpt_idea';
+}
 
 class EmailService {
   private static instance: EmailService;
@@ -15,32 +23,41 @@ class EmailService {
     return EmailService.instance;
   }
 
-  public async sendEmail(data: Omit<EmailTemplateData, 'to_name'>): Promise<EmailResponse> {
+  private getTemplateId(formType: string): string {
+    return formType === 'feedback'
+      ? EMAIL_CONFIG.TEMPLATE_IDS.FEEDBACK
+      : EMAIL_CONFIG.TEMPLATE_IDS.GPT_IDEA;
+  }
+
+  private formatEmailParams(params: SendEmailParams): EmailTemplateParams {
+    return {
+      to_name: 'Enablerry Team',
+      from_name: params.fromName,
+      from_email: params.fromEmail,
+      message: params.message,
+      rating: params.rating,
+      'g-recaptcha-response': params.recaptchaToken, // Correct parameter name
+    };
+  }
+
+  public async sendEmail(params: SendEmailParams): Promise<EmailResponse> {
     try {
-      const templateId = data.form_type === 'feedback' 
-        ? EMAIL_CONFIG.TEMPLATE_IDS.FEEDBACK 
-        : EMAIL_CONFIG.TEMPLATE_IDS.GPT_IDEA;
+      if (!params.recaptchaToken) {
+        throw new Error('reCAPTCHA verification required');
+      }
 
-      const templateData = data.form_type === 'feedback'
-        ? mapFeedbackData(data)
-        : mapGPTIdeaData(data);
+      const templateId = this.getTemplateId(params.formType);
+      const emailParams = this.formatEmailParams(params);
 
-      console.log('Sending email with template data:', templateData);
-      
-      const response = await emailClient.send(
+      return await emailClient.send(
         EMAIL_CONFIG.SERVICE_ID,
         templateId,
-        {
-          ...templateData,
-          to_name: 'Enablerry Team',
-        }
+        emailParams
       );
-
-      return response;
     } catch (error) {
-      console.error('Email sending failed:', error);
-      return { 
-        success: false, 
+      console.error('Email service error:', error);
+      return {
+        success: false,
         error: error instanceof Error ? error.message : 'Failed to send email'
       };
     }
