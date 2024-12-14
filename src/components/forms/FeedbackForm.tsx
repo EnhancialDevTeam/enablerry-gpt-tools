@@ -9,12 +9,13 @@ import { useRating } from '../../hooks/useRating';
 import { useRecaptcha } from '../../hooks/useRecaptcha';
 import { useFeedbackValidation } from '../../hooks/useFeedbackValidation';
 import { trackEvent } from '../../utils/analytics';
+import { FormData } from '../../types';
 
 export function FeedbackForm() {
   const { rating, setRating, error: ratingError, validateRating } = useRating(true);
   const { recaptchaToken, setRecaptchaToken, validateRecaptcha } = useRecaptcha();
-  const { error: feedbackError, validateFeedback } = useFeedbackValidation(5);
-  const [formData, setFormData] = useState({
+  const { error: feedbackError, validateFeedback } = useFeedbackValidation(50); // Updated to 50 characters minimum
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     feedback: ''
@@ -36,9 +37,7 @@ export function FeedbackForm() {
 
     try {
       const { success, error } = await sendEmail({
-        from_name: formData.name,
-        from_email: formData.email,
-        message: formData.feedback,
+        ...formData,
         rating,
         form_type: 'feedback',
         recaptcha_token: recaptchaToken!
@@ -59,11 +58,6 @@ export function FeedbackForm() {
       setStatus('error');
       setErrorMessage('An unexpected error occurred. Please try again.');
     }
-  };
-
-  const handleFeedbackChange = (value: string) => {
-    setFormData(prev => ({ ...prev, feedback: value }));
-    validateFeedback(value);
   };
 
   return (
@@ -96,12 +90,12 @@ export function FeedbackForm() {
           label="Your Feedback"
           type="textarea"
           required
-          minLength={5}
+          minLength={50}
           value={formData.feedback}
-          onChange={handleFeedbackChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, feedback: value }))}
           error={feedbackError}
           onBlur={() => validateFeedback(formData.feedback)}
-          placeholder="Please provide your feedback (minimum 5 characters)"
+          placeholder="Please provide detailed feedback (minimum 50 characters)"
         />
 
         <StarRating

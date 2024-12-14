@@ -4,16 +4,23 @@ export interface FormStatus {
 }
 
 export interface FormData {
-  name?: string;
-  email?: string;
-  feedback?: string;
-  title?: string;
-  description?: string;
-  useCase?: string;
+  name: string;
+  email: string;
+  feedback: string;
+  rating?: number;
+}
+
+export interface EmailTemplateData {
+  to_name: string;
+  from_name: string;
+  from_email: string;
+  message: string;
+  rating?: number;
+  form_type: 'feedback' | 'gpt_idea';
+  recaptcha_token: string;
 }
 
 export interface EmailResponse {
   success: boolean;
-  response?: any;
   error?: any;
 }

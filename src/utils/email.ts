@@ -1,31 +1,28 @@
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../constants/config';
+import { EmailTemplateData, FormData, EmailResponse } from '../types';
 
-interface EmailData {
-  from_name?: string;
-  from_email?: string;
-  message?: string;
-  rating?: number;
-  tool_name?: string;
-  description?: string;
-  use_case?: string;
-  form_type: 'feedback' | 'gpt_idea';
-  recaptcha_token: string;
-}
-
-export async function sendEmail(data: EmailData): Promise<{ success: boolean; error?: any }> {
+export async function sendEmail(
+  formData: FormData & { recaptcha_token: string; form_type: 'feedback' | 'gpt_idea' }
+): Promise<EmailResponse> {
   try {
-    const templateId = data.form_type === 'feedback' 
+    await emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
+
+    // Map form data to email template fields
+    const emailData: EmailTemplateData = {
+      to_name: 'Enablerry Team', // Default recipient name
+      from_name: formData.name,
+      from_email: formData.email,
+      message: formData.feedback,
+      rating: formData.rating,
+      form_type: formData.form_type,
+      recaptcha_token: formData.recaptcha_token
+    };
+
+    const templateId = formData.form_type === 'feedback' 
       ? EMAIL_CONFIG.TEMPLATE_IDS.FEEDBACK 
       : EMAIL_CONFIG.TEMPLATE_IDS.GPT_IDEA;
 
-    const emailData = {
-      ...data,
-      to_email: EMAIL_CONFIG.TO_EMAIL,
-    };
-
-    await emailjs.init(EMAIL_CONFIG.PUBLIC_KEY);
-    
     const response = await emailjs.send(
       EMAIL_CONFIG.SERVICE_ID,
       templateId,
