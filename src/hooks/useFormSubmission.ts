@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { FormStatus } from '../types';
-import { emailService } from '../services/emailService';
+import { emailService } from '../services/email/emailService';
 import { trackEvent } from '../utils/analytics';
+import type { FormStatus } from '../types';
 
 interface UseFormSubmissionProps {
   onSuccess?: () => void;
@@ -19,12 +19,14 @@ export function useFormSubmission({
   const [status, setStatus] = useState<FormStatus['status']>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const handleSubmit = async (emailData: any) => {
+  const handleSubmit = async (formData: any) => {
     setStatus('loading');
     setErrorMessage('');
 
     try {
-      const { success, error } = await emailService.sendEmail(emailData);
+      const { success, error } = formData.form_type === 'feedback'
+        ? await emailService.sendFeedback(formData)
+        : await emailService.sendGPTIdea(formData);
 
       if (success) {
         setStatus('success');
@@ -35,7 +37,7 @@ export function useFormSubmission({
         }
       } else {
         setStatus('error');
-        setErrorMessage(error?.message || 'Failed to send. Please try again.');
+        setErrorMessage(error || 'Failed to send. Please try again.');
       }
     } catch (error) {
       console.error('Submission error:', error);
@@ -48,7 +50,5 @@ export function useFormSubmission({
     status,
     errorMessage,
     handleSubmit,
-    setStatus,
-    setErrorMessage,
   };
 }

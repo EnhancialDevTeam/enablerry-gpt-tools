@@ -1,8 +1,8 @@
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../constants/config';
-import { EmailData, EmailResponse } from '../types';
+import type { EmailTemplateData, EmailResponse } from '../types';
 
-export class EmailService {
+class EmailService {
   private static instance: EmailService;
 
   private constructor() {
@@ -16,7 +16,7 @@ export class EmailService {
     return EmailService.instance;
   }
 
-  public async sendEmail(data: EmailData): Promise<EmailResponse> {
+  public async sendEmail(data: Omit<EmailTemplateData, 'to_name'>): Promise<EmailResponse> {
     try {
       const templateId = data.form_type === 'feedback' 
         ? EMAIL_CONFIG.TEMPLATE_IDS.FEEDBACK 
@@ -24,7 +24,7 @@ export class EmailService {
 
       const emailData = {
         ...data,
-        to_email: EMAIL_CONFIG.TO_EMAIL,
+        to_name: 'Enablerry Team',
       };
 
       const response = await emailjs.send(
@@ -35,13 +35,15 @@ export class EmailService {
 
       if (response.status === 200) {
         return { success: true };
-      } else {
-        console.error('Email sending failed with status:', response.status);
-        return { success: false, error: 'Failed to send email' };
       }
+      
+      throw new Error('Failed to send email');
     } catch (error) {
       console.error('Email sending failed:', error);
-      return { success: false, error };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to send email'
+      };
     }
   }
 }

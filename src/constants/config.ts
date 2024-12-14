@@ -13,3 +13,14 @@ export const EMAIL_CONFIG = {
   PUBLIC_KEY: 'MCMDp53ezb_n5AmJ2',
   TO_EMAIL: 'hello@enablerry.com',
 };
+
+export const FORM_CONFIG = {
+  FEEDBACK: {
+    MIN_LENGTH: 50,
+    MAX_LENGTH: 1000,
+  },
+  IDEA: {
+    MIN_LENGTH: 50,
+    MAX_LENGTH: 1000,
+  },
+};
