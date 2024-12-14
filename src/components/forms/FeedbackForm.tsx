@@ -7,11 +7,13 @@ import { SubmitButton } from './SubmitButton';
 import { StarRating } from './StarRating';
 import { useRating } from '../../hooks/useRating';
 import { useRecaptcha } from '../../hooks/useRecaptcha';
+import { useFeedbackValidation } from '../../hooks/useFeedbackValidation';
 import { trackEvent } from '../../utils/analytics';
 
 export function FeedbackForm() {
   const { rating, setRating, error: ratingError, validateRating } = useRating(true);
   const { recaptchaToken, setRecaptchaToken, validateRecaptcha } = useRecaptcha();
+  const { error: feedbackError, validateFeedback } = useFeedbackValidation(4);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,39 +24,42 @@ export function FeedbackForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate rating first
-    if (!validateRating()) {
-      return;
-    }
+    const { isValid } = validateFeedback(formData.feedback);
+    if (!isValid) return;
 
-    // Validate reCAPTCHA
-    if (!validateRecaptcha()) {
-      return;
-    }
+    if (!validateRating()) return;
+    if (!validateRecaptcha()) return;
 
     setStatus('loading');
 
-    const emailData = {
-      from_name: formData.name,
-      from_email: formData.email,
-      message: formData.feedback,
-      rating: rating,
-      form_type: 'feedback',
-      recaptcha_token: recaptchaToken
-    };
+    try {
+      const { success } = await sendEmail({
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.feedback,
+        rating,
+        form_type: 'feedback',
+        recaptcha_token: recaptchaToken!
+      });
 
-    const { success } = await sendEmail(emailData);
-    setStatus(success ? 'success' : 'error');
-
-    if (success) {
-      // Reset form
-      setFormData({ name: '', email: '', feedback: '' });
-      setRating(0);
-      setRecaptchaToken(null);
-      
-      // Track submission
-      trackEvent('form_submission', 'Engagement', 'Feedback Form');
+      if (success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', feedback: '' });
+        setRating(0);
+        setRecaptchaToken(null);
+        trackEvent('form_submission', 'Engagement', 'Feedback Form');
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setStatus('error');
     }
+  };
+
+  const handleFeedbackChange = (value: string) => {
+    setFormData(prev => ({ ...prev, feedback: value }));
+    validateFeedback(value);
   };
 
   return (
@@ -86,9 +91,11 @@ export function FeedbackForm() {
           label="Your Feedback"
           type="textarea"
           required
-          minLength={50}
+          minLength={4}
           value={formData.feedback}
-          onChange={(value) => setFormData(prev => ({ ...prev, feedback: value }))}
+          onChange={handleFeedbackChange}
+          error={feedbackError}
+          onBlur={() => validateFeedback(formData.feedback)}
         />
 
         <StarRating

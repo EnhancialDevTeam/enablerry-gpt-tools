@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface FormInputProps {
   id: string;
@@ -11,6 +11,8 @@ interface FormInputProps {
   minLength?: number;
   rows?: number;
   className?: string;
+  error?: string;
+  onBlur?: () => void;
 }
 
 export function FormInput({
@@ -24,9 +26,19 @@ export function FormInput({
   minLength,
   rows,
   className = '',
+  error,
+  onBlur,
 }: FormInputProps) {
-  const baseClasses = "w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary";
+  const [touched, setTouched] = useState(false);
+  const showError = touched && error;
+  const baseClasses = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary";
+  const borderColor = showError ? "border-red-500" : "border-neutral-300 focus:border-primary";
   
+  const handleBlur = () => {
+    setTouched(true);
+    onBlur?.();
+  };
+
   return (
     <div className={`mb-4 ${className}`}>
       <label htmlFor={id} className="block text-neutral-700 mb-2">
@@ -38,9 +50,10 @@ export function FormInput({
           required={required}
           minLength={minLength}
           rows={rows || 4}
-          className={baseClasses}
+          className={`${baseClasses} ${borderColor}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={handleBlur}
           placeholder={placeholder}
         />
       ) : (
@@ -48,11 +61,16 @@ export function FormInput({
           type={type}
           id={id}
           required={required}
-          className={baseClasses}
+          minLength={minLength}
+          className={`${baseClasses} ${borderColor}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={handleBlur}
           placeholder={placeholder}
         />
+      )}
+      {showError && (
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
     </div>
   );

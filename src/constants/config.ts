@@ -1,5 +1,4 @@
 export const RECAPTCHA_CONFIG = {
-  // Site key for gpt.enablerry.com domain
   SITE_KEY: '6LcTspsqAAAAADieUs8CLqLnV1JFtyBdXCPYbcO7',
   THEME: 'light' as const,
   SIZE: 'normal' as const,
