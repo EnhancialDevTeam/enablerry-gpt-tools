@@ -1,6 +1,7 @@
 import React from 'react';
 import { Brain, FileText, MessageSquare } from 'lucide-react';
 import { ToolCard } from '../cards/ToolCard';
+import { PrivacyNotice } from '../notices/PrivacyNotice';
 
 const tools = [
   {
@@ -48,9 +49,12 @@ export function FeaturesSection() {
         <h2 className="text-4xl font-bold text-center text-primary mb-4">
           Our AI Solutions
         </h2>
-        <p className="text-xl text-neutral-600 text-center mb-16 max-w-2xl mx-auto">
+        <p className="text-xl text-neutral-600 text-center mb-8 max-w-2xl mx-auto">
           Powerful tools designed to streamline your workflow and boost productivity
         </p>
+        
+        <PrivacyNotice />
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {tools.map((tool) => (
             <ToolCard key={tool.name} {...tool} />
